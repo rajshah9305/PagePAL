@@ -1,4 +1,6 @@
-import { type Prompt, type InsertPrompt, type Category, type InsertCategory, type Stats, type InsertStats } from "@shared/schema";
+import { prompts, categories, stats, type Prompt, type InsertPrompt, type Category, type InsertCategory, type Stats, type InsertStats } from "@shared/schema";
+import { db } from "./db";
+import { eq, ilike, or } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -15,6 +17,97 @@ export interface IStorage {
   
   // Stats
   getStats(): Promise<Stats>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async getPrompts(): Promise<Prompt[]> {
+    return await db.select().from(prompts);
+  }
+
+  async getPrompt(id: string): Promise<Prompt | undefined> {
+    const [prompt] = await db.select().from(prompts).where(eq(prompts.id, id));
+    return prompt || undefined;
+  }
+
+  async createPrompt(insertPrompt: InsertPrompt): Promise<Prompt> {
+    const [prompt] = await db
+      .insert(prompts)
+      .values(insertPrompt)
+      .returning();
+    
+    // Update stats
+    await this.updateStats();
+    
+    return prompt;
+  }
+
+  async searchPrompts(query: string): Promise<Prompt[]> {
+    const searchTerm = `%${query.toLowerCase()}%`;
+    return await db
+      .select()
+      .from(prompts)
+      .where(
+        or(
+          ilike(prompts.title, searchTerm),
+          ilike(prompts.description, searchTerm)
+        )
+      );
+  }
+
+  async getPromptsByCategory(category: string): Promise<Prompt[]> {
+    return await db
+      .select()
+      .from(prompts)
+      .where(eq(prompts.category, category));
+  }
+
+  async getCategories(): Promise<Category[]> {
+    return await db.select().from(categories);
+  }
+
+  async getCategory(id: string): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category || undefined;
+  }
+
+  async getStats(): Promise<Stats> {
+    let [statsRow] = await db.select().from(stats);
+    
+    if (!statsRow) {
+      // Create initial stats if they don't exist
+      const promptCount = await db.select().from(prompts);
+      const categoryCount = await db.select().from(categories);
+      
+      [statsRow] = await db
+        .insert(stats)
+        .values({
+          prompts_count: promptCount.length,
+          categories_count: categoryCount.length,
+          contributors_count: 156,
+          insights_count: 32,
+        })
+        .returning();
+    }
+    
+    return statsRow;
+  }
+
+  private async updateStats(): Promise<void> {
+    const promptCount = await db.select().from(prompts);
+    const categoryCount = await db.select().from(categories);
+    
+    const [existingStats] = await db.select().from(stats);
+    
+    if (existingStats) {
+      await db
+        .update(stats)
+        .set({
+          prompts_count: promptCount.length,
+          categories_count: categoryCount.length,
+        })
+        .where(eq(stats.id, existingStats.id));
+    }
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -138,7 +231,7 @@ export class MemStorage implements IStorage {
 
     promptsData.forEach(prompt => {
       const id = randomUUID();
-      this.prompts.set(id, { ...prompt, id });
+      this.prompts.set(id, { ...prompt, id, rating: prompt.rating || "0.0", tags: prompt.tags || null });
     });
 
     this.stats.prompts_count = this.prompts.size;
@@ -154,7 +247,7 @@ export class MemStorage implements IStorage {
 
   async createPrompt(insertPrompt: InsertPrompt): Promise<Prompt> {
     const id = randomUUID();
-    const prompt: Prompt = { ...insertPrompt, id };
+    const prompt: Prompt = { ...insertPrompt, id, rating: insertPrompt.rating || "0.0", tags: insertPrompt.tags || null };
     this.prompts.set(id, prompt);
     this.stats.prompts_count = this.prompts.size;
     return prompt;
@@ -189,4 +282,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
