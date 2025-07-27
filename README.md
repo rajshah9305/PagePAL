@@ -2,54 +2,41 @@
 
 A modern, production-ready platform for discovering and sharing high-quality system prompts for AI applications.
 
-## 🚀 Features
+![SystemPromptHub](https://img.shields.io/badge/React-18-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue)
+![Express](https://img.shields.io/badge/Express-4.21-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
 
-### Core Features
+## ✨ Features
+
 - **Curated Prompt Library**: Browse high-quality system prompts organized by category
 - **Advanced Search**: Filter by keywords, categories, authors, and tags
 - **Interactive Cards**: Like, copy, and export prompts with one click
 - **Real-time Statistics**: Live metrics and analytics on usage
 - **Community Driven**: Submit and share your own prompts
-
-### Production-Ready
-- **Error Boundaries**: Graceful error handling throughout the application
-- **Loading States**: Skeleton screens and optimized loading experiences
-- **Database Integration**: PostgreSQL with Drizzle ORM for reliable data persistence
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
-- **Performance Optimized**: Fast loading with caching and query optimization
-
-### Modern UI/UX
-- **Animated Hero Section**: Eye-catching statistics with smooth animations
-- **Gradient Backgrounds**: Professional dark hero with clean white content areas
-- **Interactive Elements**: Hover effects, transitions, and micro-interactions
-- **Category-Based Styling**: Color-coded prompts by category for easy identification
-- **Advanced Filtering**: Sort by rating, popularity, or newest additions
+- **Modern UI/UX**: Clean interface with smooth animations and micro-interactions
 
 ## 🛠 Tech Stack
 
 ### Frontend
-- **React 18** with TypeScript for type-safe development
-- **Vite** for fast development and optimized production builds
-- **Tailwind CSS** with shadcn/ui components for consistent design
-- **TanStack Query** for efficient server state management
-- **Wouter** for lightweight client-side routing
+- **React 18** with TypeScript
+- **Vite** for fast development and optimized builds
+- **Tailwind CSS** + **shadcn/ui** for styling
+- **TanStack Query** for server state management
+- **Wouter** for lightweight routing
 
 ### Backend
-- **Node.js** with Express.js framework
-- **TypeScript** with ES modules for modern development
-- **PostgreSQL** with Neon serverless integration
-- **Drizzle ORM** for type-safe database operations
-
-### Development Tools
-- **Hot Reloading** with Vite and tsx
-- **ESBuild** for optimized production compilation
-- **Drizzle Kit** for database schema management
+- **Node.js** + **Express.js** with TypeScript
+- **PostgreSQL** with **Drizzle ORM**
+- **Zod** for schema validation
+- **Express Sessions** for authentication
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
-- PostgreSQL database (Neon recommended)
+- PostgreSQL database (or Neon account)
 
 ### Installation
 
@@ -69,9 +56,11 @@ A modern, production-ready platform for discovering and sharing high-quality sys
    cp .env.example .env
    ```
    
-   Add your database URL:
+   Edit `.env` with your database URL:
    ```env
    DATABASE_URL=your_postgresql_connection_string
+   NODE_ENV=development
+   PORT=5000
    ```
 
 4. **Set up the database**
@@ -84,57 +73,52 @@ A modern, production-ready platform for discovering and sharing high-quality sys
    npm run dev
    ```
 
-   The application will be available at `http://localhost:5000`
+   Open [http://localhost:5000](http://localhost:5000) in your browser.
 
-## 📁 Project Structure
+## 🗃 Database Setup
 
-```
-├── client/                 # Frontend React application
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── lib/            # Utilities and configurations
-│   │   ├── pages/          # Page components and routing
-│   │   └── index.css       # Global styles and Tailwind imports
-├── server/                 # Backend Express application
-│   ├── db.ts              # Database connection setup
-│   ├── index.ts           # Server entry point
-│   ├── routes.ts          # API route definitions
-│   └── storage.ts         # Data access layer
-├── shared/                 # Shared types and schemas
-│   └── schema.ts          # Database schema and TypeScript types
-└── package.json           # Dependencies and scripts
-```
+### Option 1: Neon (Recommended)
+1. Sign up at [neon.tech](https://neon.tech)
+2. Create a new database
+3. Copy the connection string to your `.env` file
 
-## 🗃 Database Schema
+### Option 2: Local PostgreSQL
+1. Install PostgreSQL locally
+2. Create a database:
+   ```bash
+   createdb systemprompts
+   ```
+3. Update `.env` with your local connection string:
+   ```env
+   DATABASE_URL=postgresql://postgres:password@localhost:5432/systemprompts
+   ```
 
-The application uses PostgreSQL with the following main entities:
+## 📜 Available Scripts
 
-- **Prompts**: Core prompt data with content, metadata, and categorization
-- **Categories**: Organized classification system with visual styling
-- **Stats**: Application-wide statistics and metrics
-
-## 🔧 API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/prompts` | GET | Retrieve all prompts |
-| `/api/prompts/:id` | GET | Get specific prompt by ID |
-| `/api/prompts/search/:query` | GET | Search prompts by content |
-| `/api/prompts/category/:category` | GET | Filter prompts by category |
-| `/api/categories` | GET | Retrieve all categories |
-| `/api/stats` | GET | Get application statistics |
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server with hot reloading |
+| `npm run build` | Build for production |
+| `npm start` | Start production server |
+| `npm run check` | TypeScript type checking |
+| `npm run db:push` | Push database schema changes |
+| `npm run db:generate` | Generate database migrations |
 
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
 
-1. **Connect your repository to Vercel**
-2. **Configure environment variables** in the Vercel dashboard:
-   - `DATABASE_URL`: Your PostgreSQL connection string
-3. **Deploy** - Vercel will automatically detect the configuration
+1. **Push to GitHub**
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   ```
 
-The project includes `vercel.json` for optimal deployment settings.
+2. **Deploy to Vercel**
+   - Connect your GitHub repository to Vercel
+   - Add `DATABASE_URL` environment variable
+   - Deploy automatically
 
 ### Manual Deployment
 
@@ -143,52 +127,55 @@ The project includes `vercel.json` for optimal deployment settings.
    npm run build
    ```
 
-2. **Start the production server**
+2. **Set production environment variables**
+   ```bash
+   export NODE_ENV=production
+   export DATABASE_URL=your_production_database_url
+   ```
+
+3. **Start the production server**
    ```bash
    npm start
    ```
 
-## 📝 Environment Variables
+## 📁 Project Structure
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `NODE_ENV` | Environment (development/production) | No |
-| `PORT` | Server port (default: 5000) | No |
+```
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # UI components
+│   │   ├── pages/          # Page components
+│   │   ├── hooks/          # Custom hooks
+│   │   └── lib/            # Utilities
+├── server/                 # Express backend
+│   ├── index.ts           # Server entry point
+│   ├── routes.ts          # API routes
+│   ├── storage.ts         # Database layer
+│   └── db.ts              # Database connection
+├── shared/                # Shared types
+│   └── schema.ts          # Database schema
+└── package.json           # Dependencies
+```
+
+## 🔧 API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/prompts` | GET | Retrieve all prompts |
+| `/api/prompts/:id` | GET | Get specific prompt |
+| `/api/prompts` | POST | Create new prompt |
+| `/api/prompts/search/:query` | GET | Search prompts |
+| `/api/prompts/category/:category` | GET | Filter by category |
+| `/api/categories` | GET | Get all categories |
+| `/api/stats` | GET | Get application statistics |
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-## 📋 Development Scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server with hot reloading |
-| `npm run build` | Build for production |
-| `npm start` | Start production server |
-| `npm run db:push` | Push database schema changes |
-| `npm run db:generate` | Generate database migrations |
-
-## 🎨 Design System
-
-The application uses a consistent design system with:
-
-- **Color Palette**: Professional blue and slate tones with accent colors
-- **Typography**: Inter font family for clean readability
-- **Spacing**: 8px grid system for consistent layouts
-- **Components**: shadcn/ui component library for accessibility and consistency
-
-## 📱 Browser Support
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
 
 ## 📄 License
 
@@ -198,7 +185,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with modern web technologies and best practices
 - Inspired by the AI development community's need for quality prompts
-- Designed for developers, by developers
+- UI components from [shadcn/ui](https://ui.shadcn.com/)
+- Icons from [Lucide React](https://lucide.dev/)
 
 ---
 
